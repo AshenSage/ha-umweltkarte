@@ -1,0 +1,12 @@
+{
+  "name": "ha-umweltkarte",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Home Assistant Umweltkarte mit lesbaren Zeilen für Luftqualität, UV und Pollen",
+  "license": "MIT",
+  "scripts": {
+    "check": "node --check dist/ha-umweltkarte.js && node scripts/check-package.mjs && node --test tests/model.test.mjs",
+    "test": "node --test tests/model.test.mjs"
+  }
+}

@@ -1,0 +1,15 @@
+import { readFile, access, readdir } from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import { VERSION } from '../dist/ha-umweltkarte.js';
+const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
+const pkg = JSON.parse(await read('package.json'));
+const hacs = JSON.parse(await read('hacs.json'));
+assert.match(pkg.version, /^\d+\.\d+\.\d+$/, 'Nur stabile Versionsnummern verwenden.');
+assert.equal(VERSION, pkg.version, 'Dateiversion muss package.json entsprechen.');
+assert.equal(hacs.filename, 'ha-umweltkarte.js');
+assert.equal(hacs.render_readme, true);
+assert.deepEqual((await readdir(new URL('../dist/', import.meta.url))).filter(name => name.endsWith('.js')), [hacs.filename]);
+for (const path of ['LICENSE', 'README.md', 'examples/arandjelovac.yaml', 'CHANGELOG.md', 'RELEASE_NOTES.md']) await access(new URL(`../${path}`, import.meta.url));
+assert.match(await read('examples/arandjelovac.yaml'), /type: custom:ha-umweltkarte/);
+assert.ok(!(await read('dist/ha-umweltkarte.js')).includes('https://cdn.'), 'Karte muss ohne externes CDN funktionieren.');
+console.log(`Umweltkarte ${pkg.version}: HACS-Paket gültig.`);

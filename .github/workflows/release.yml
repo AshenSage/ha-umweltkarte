@@ -1,0 +1,49 @@
+name: Validate and publish stable release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dist/**'
+      - 'package.json'
+      - 'hacs.json'
+      - 'scripts/**'
+      - 'tests/**'
+      - '.github/workflows/release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stable-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Validate card and HACS package
+        run: npm run check
+      - name: Publish stable release if version is new
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p 'require("./package.json").version')"
+          tag="v${version}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release ${tag} already exists. Increase package.json version for a new release."
+            exit 0
+          fi
+          gh release create "$tag" dist/ha-umweltkarte.js \
+            --target "$GITHUB_SHA" \
+            --title "Umweltkarte ${version}" \
+            --notes-file RELEASE_NOTES.md \
+            --latest

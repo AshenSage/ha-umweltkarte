@@ -1,0 +1,10 @@
+type: custom:ha-umweltkarte
+title: Umwelt heute
+subtitle: Aranđelovac
+air_entity: sensor.arandjelovac_luftqualitaet
+uv_entity: sensor.arandjelovac_uv_index
+pollen_entity: sensor.arandjelovac_pollen
+show_uv_chart: true
+grid_options:
+  columns: 12
+  rows: auto
